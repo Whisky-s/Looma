@@ -137,6 +137,27 @@ fn open_path(path: String, state: State<'_, AppState>) -> Result<(), String> {
     state.store.lock().unwrap().open_path(&path)
 }
 
+#[tauri::command]
+fn window_minimize(window: tauri::Window) {
+    let _ = window.minimize();
+}
+
+#[tauri::command]
+fn window_toggle_maximize(window: tauri::Window) {
+    if let Ok(maximized) = window.is_maximized() {
+        if maximized {
+            let _ = window.unmaximize();
+        } else {
+            let _ = window.maximize();
+        }
+    }
+}
+
+#[tauri::command]
+fn window_close(window: tauri::Window) {
+    let _ = window.close();
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let store = ManagerStore::new();
@@ -173,6 +194,9 @@ pub fn run() {
             create_backup,
             restore_backup,
             open_path,
+            window_minimize,
+            window_toggle_maximize,
+            window_close,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -74,7 +74,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className="w-[240px] h-full bg-[#ecedf0] border-r border-[#e2e7ed] flex flex-col justify-between shrink-0 select-none">
       <div className="flex flex-col h-full overflow-hidden">
         {/* App Header */}
-        <div className="pt-6 pb-4 px-4 flex items-center justify-between border-b border-[#e2e7ed]/60">
+        <div className="pt-3.5 pb-3.5 px-4 flex items-center justify-between border-b border-[#e2e7ed]/60">
           <div className="flex items-center gap-3">
             <img
               src="/app-icon.png"

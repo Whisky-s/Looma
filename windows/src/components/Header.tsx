@@ -58,7 +58,7 @@ export const Header: React.FC<HeaderProps> = ({
   const targetLabel = projectName ? `项目 · ${projectName}` : "全局";
 
   return (
-    <div className="flex items-center justify-between px-8 pt-8 pb-4 shrink-0">
+    <div className="flex items-center justify-between px-8 pt-4 pb-3.5 shrink-0">
       <div>
         <div className="flex items-center gap-2.5">
           <h1 className="text-2xl font-bold tracking-tight text-[#0f172a]">{getTitle()}</h1>
@@ -79,7 +79,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-full border border-[#e2e7ed] shadow-xs">
         <span className="w-2 h-2 rounded-full bg-[#10b981]" />
         <span className="text-xs font-bold text-[#0f172a]">Looma</span>
-        <span className="text-[11px] font-semibold font-mono text-[#2563eb]">v0.1.4</span>
+        <span className="text-[11px] font-semibold font-mono text-[#2563eb]">v0.1.5</span>
       </div>
     </div>
   );

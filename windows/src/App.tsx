@@ -20,6 +20,7 @@ import { SettingsView } from "./components/SettingsView";
 import { DetailModal } from "./components/DetailModal";
 import { NewMcpModal } from "./components/NewMcpModal";
 import { ImportModal } from "./components/ImportModal";
+import { TitleBar } from "./components/TitleBar";
 
 const DEFAULT_AGENTS: AgentStatus[] = [
   { agent: "claude", name: "Claude", installed: true, global_skill_roots: [], global_mcp_path: "~/.claude.json" },
@@ -429,121 +430,126 @@ export default function App() {
   const unadoptedMcpCount = consolidatedMcps.filter((m) => !m.isLibrary).length;
 
   return (
-    <div className="flex h-screen w-screen bg-[#f4f6f9] text-[#0f172a] select-none overflow-hidden font-sans">
-      {/* Left Sidebar */}
-      <Sidebar
-        page={page}
-        setPage={setPage}
-        sourceFilter={sourceFilter}
-        setSourceFilter={setSourceFilter}
-        selectedAgent={selectedAgent}
-        setSelectedAgent={setSelectedAgent}
-        selectedProject={selectedProject}
-        setSelectedProject={setSelectedProject}
-        agents={agents}
-        projects={projects}
-        librarySkillCount={librarySkillCount}
-        libraryMcpCount={libraryMcpCount}
-        totalSkillCount={totalSkillCount}
-        totalMcpCount={totalMcpCount}
-        unadoptedSkillCount={unadoptedSkillCount}
-        unadoptedMcpCount={unadoptedMcpCount}
-        onRefresh={loadAll}
-      />
+    <div className="flex flex-col h-screen w-screen bg-[#f4f6f9] text-[#0f172a] select-none overflow-hidden font-sans border border-slate-300/70 rounded-xl shadow-lg">
+      {/* Sleek Custom Frameless TitleBar */}
+      <TitleBar />
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden bg-[#f4f6f9]">
-        {/* Top Header */}
-        <Header
+      <div className="flex flex-1 h-[calc(100vh-32px)] overflow-hidden">
+        {/* Left Sidebar */}
+        <Sidebar
           page={page}
+          setPage={setPage}
+          sourceFilter={sourceFilter}
+          setSourceFilter={setSourceFilter}
           selectedAgent={selectedAgent}
+          setSelectedAgent={setSelectedAgent}
           selectedProject={selectedProject}
+          setSelectedProject={setSelectedProject}
           agents={agents}
+          projects={projects}
+          librarySkillCount={librarySkillCount}
+          libraryMcpCount={libraryMcpCount}
+          totalSkillCount={totalSkillCount}
+          totalMcpCount={totalMcpCount}
+          unadoptedSkillCount={unadoptedSkillCount}
+          unadoptedMcpCount={unadoptedMcpCount}
+          onRefresh={loadAll}
         />
 
-        {/* Views */}
-        {page === "skills" || page === "mcp" ? (
-          <>
-            <Toolbar
-              page={page}
-              setPage={setPage}
-              sourceFilter={sourceFilter}
-              setSourceFilter={setSourceFilter}
-              statusFilter={statusFilter}
-              setStatusFilter={setStatusFilter}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              viewMode={viewMode}
-              setViewMode={setViewMode}
-              totalCount={page === "skills" ? totalSkillCount : totalMcpCount}
-              libraryCount={page === "skills" ? librarySkillCount : libraryMcpCount}
-              unadoptedCount={page === "skills" ? unadoptedSkillCount : unadoptedMcpCount}
-              displayCount={filteredItems.length}
-              onNewMcp={() => setNewMcpOpen(true)}
-              onImportLocal={() => setImportLocalOpen(true)}
-              onImportGit={() => setImportGitOpen(true)}
-            />
+        {/* Main Content Area */}
+        <main className="flex-1 flex flex-col h-full overflow-hidden bg-[#f4f6f9]">
+          {/* Top Header */}
+          <Header
+            page={page}
+            selectedAgent={selectedAgent}
+            selectedProject={selectedProject}
+            agents={agents}
+          />
 
-            {/* Content Grid or Table */}
-            <div className="flex-1 overflow-y-auto px-8 pb-8">
-              {filteredItems.length === 0 ? (
-                <div className="bg-white rounded-xl border border-slate-200/80 p-12 text-center text-xs text-slate-400 mt-2">
-                  未匹配到任何能力条目
-                </div>
-              ) : viewMode === "grid" ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredItems.map((item) => (
-                    <CapabilityCard
-                      key={item.id}
-                      item={item}
-                      selectedAgent={selectedAgent}
-                      onSelect={(it) => setDetailItem(it)}
-                      onToggleTarget={handleToggleTarget}
-                      onAdopt={handleAdopt}
-                      onDelete={handleDelete}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <CapabilityTable
-                  items={filteredItems}
-                  selectedAgent={selectedAgent}
-                  onSelect={(it) => setDetailItem(it)}
-                  onToggleTarget={handleToggleTarget}
-                  onAdopt={handleAdopt}
-                  onDelete={handleDelete}
-                />
-              )}
-            </div>
-          </>
-        ) : page === "presets" ? (
-          <PresetsView
-            presets={presets}
-            agents={agents}
-            onApplyPreset={handleApplyPreset}
-            onSavePreset={handleSavePreset}
-          />
-        ) : page === "projects" ? (
-          <ProjectsView
-            projects={projects}
-            onAddProject={handleAddProject}
-            onRemoveProject={handleRemoveProject}
-            onSelectProject={(p) => {
-              setSelectedProject(p);
-              setPage("skills");
-            }}
-          />
-        ) : (
-          <SettingsView
-            agents={agents}
-            history={history}
-            librarySkillCount={librarySkillCount}
-            libraryMcpCount={libraryMcpCount}
-            projectCount={projects.length}
-            onRefreshAll={loadAll}
-          />
-        )}
-      </main>
+          {/* Views */}
+          {page === "skills" || page === "mcp" ? (
+            <>
+              <Toolbar
+                page={page}
+                setPage={setPage}
+                sourceFilter={sourceFilter}
+                setSourceFilter={setSourceFilter}
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                viewMode={viewMode}
+                setViewMode={setViewMode}
+                totalCount={page === "skills" ? totalSkillCount : totalMcpCount}
+                libraryCount={page === "skills" ? librarySkillCount : libraryMcpCount}
+                unadoptedCount={page === "skills" ? unadoptedSkillCount : unadoptedMcpCount}
+                displayCount={filteredItems.length}
+                onNewMcp={() => setNewMcpOpen(true)}
+                onImportLocal={() => setImportLocalOpen(true)}
+                onImportGit={() => setImportGitOpen(true)}
+              />
+
+              {/* Content Grid or Table */}
+              <div className="flex-1 overflow-y-auto px-8 pb-8">
+                {filteredItems.length === 0 ? (
+                  <div className="bg-white rounded-xl border border-slate-200/80 p-12 text-center text-xs text-slate-400 mt-2">
+                    未匹配到任何能力条目
+                  </div>
+                ) : viewMode === "grid" ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredItems.map((item) => (
+                      <CapabilityCard
+                        key={item.id}
+                        item={item}
+                        selectedAgent={selectedAgent}
+                        onSelect={(it) => setDetailItem(it)}
+                        onToggleTarget={handleToggleTarget}
+                        onAdopt={handleAdopt}
+                        onDelete={handleDelete}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <CapabilityTable
+                    items={filteredItems}
+                    selectedAgent={selectedAgent}
+                    onSelect={(it) => setDetailItem(it)}
+                    onToggleTarget={handleToggleTarget}
+                    onAdopt={handleAdopt}
+                    onDelete={handleDelete}
+                  />
+                )}
+              </div>
+            </>
+          ) : page === "presets" ? (
+            <PresetsView
+              presets={presets}
+              agents={agents}
+              onApplyPreset={handleApplyPreset}
+              onSavePreset={handleSavePreset}
+            />
+          ) : page === "projects" ? (
+            <ProjectsView
+              projects={projects}
+              onAddProject={handleAddProject}
+              onRemoveProject={handleRemoveProject}
+              onSelectProject={(p) => {
+                setSelectedProject(p);
+                setPage("skills");
+              }}
+            />
+          ) : (
+            <SettingsView
+              agents={agents}
+              history={history}
+              librarySkillCount={librarySkillCount}
+              libraryMcpCount={libraryMcpCount}
+              projectCount={projects.length}
+              onRefreshAll={loadAll}
+            />
+          )}
+        </main>
+      </div>
 
       {/* Modals */}
       <NewMcpModal
