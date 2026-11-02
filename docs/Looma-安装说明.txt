@@ -1,0 +1,18 @@
+Looma 安装说明
+
+系统要求：macOS 14 或更高版本。支持 Apple Silicon 和 Intel Mac。
+
+1. 打开 DMG，将 Looma.app 拖入 Applications 文件夹。
+2. 从 Applications 打开 Looma。
+3. 关闭主窗口后，Looma 会继续驻留在菜单栏；点击猫咪图标可重新打开或退出。
+
+本包使用临时签名，未经过 Apple Developer ID 签名和公证。
+从网络或聊天软件下载后，首次打开可能被 macOS 拦截。
+请先确认文件来自可信的发送者；如需打开，可在“系统设置 → 隐私与安全性”中查看该应用的提示并选择“仍要打开”。无需关闭系统安全防护。
+Apple 官方说明：https://support.apple.com/102445
+
+安装包只包含应用，不包含制作者的中央库、配置、密钥或操作记录。
+每位用户的数据独立保存在自己的 ~/Library/Application Support/AgentManager/。
+为兼容旧版本，数据目录沿用 AgentManager 名称。
+旧用户安装前请退出 Agent Manager；Looma 会沿用原有数据。
+请勿同时运行旧版和 Looma。
