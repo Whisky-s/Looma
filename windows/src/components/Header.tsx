@@ -79,7 +79,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-full border border-[#e2e7ed] shadow-xs">
         <span className="w-2 h-2 rounded-full bg-[#10b981]" />
         <span className="text-xs font-bold text-[#0f172a]">Looma</span>
-        <span className="text-[11px] font-semibold font-mono text-[#2563eb]">v0.1.3</span>
+        <span className="text-[11px] font-semibold font-mono text-[#2563eb]">v0.1.4</span>
       </div>
     </div>
   );

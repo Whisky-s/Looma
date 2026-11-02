@@ -134,3 +134,36 @@ pub struct HistoryRecord {
     pub timestamp: DateTime<Utc>,
     pub details: Option<String>,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserPreferences {
+    pub detail_presentation_mode: String,
+    pub default_markdown_mode: String,
+    pub skill_deployment_mode: String,
+    pub default_git_branch: String,
+    pub enable_shallow_clone: bool,
+    pub history_limit: usize,
+}
+
+impl Default for UserPreferences {
+    fn default() -> Self {
+        Self {
+            detail_presentation_mode: "modal".to_string(),
+            default_markdown_mode: "preview".to_string(),
+            skill_deployment_mode: "link".to_string(),
+            default_git_branch: "main".to_string(),
+            enable_shallow_clone: true,
+            history_limit: 50,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BackupRecord {
+    pub id: String,
+    pub created_at: DateTime<Utc>,
+    pub filename: String,
+    pub size_bytes: u64,
+    pub skill_count: usize,
+    pub mcp_count: usize,
+}

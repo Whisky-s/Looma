@@ -534,7 +534,14 @@ export default function App() {
             }}
           />
         ) : (
-          <SettingsView agents={agents} history={history} />
+          <SettingsView
+            agents={agents}
+            history={history}
+            librarySkillCount={librarySkillCount}
+            libraryMcpCount={libraryMcpCount}
+            projectCount={projects.length}
+            onRefreshAll={loadAll}
+          />
         )}
       </main>
 

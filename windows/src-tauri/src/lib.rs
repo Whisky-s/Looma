@@ -102,6 +102,41 @@ fn get_history(state: State<'_, AppState>) -> Vec<HistoryRecord> {
     state.store.lock().unwrap().get_history()
 }
 
+#[tauri::command]
+fn clear_history(state: State<'_, AppState>) -> Result<(), String> {
+    state.store.lock().unwrap().clear_history()
+}
+
+#[tauri::command]
+fn get_preferences(state: State<'_, AppState>) -> UserPreferences {
+    state.store.lock().unwrap().get_preferences()
+}
+
+#[tauri::command]
+fn save_preferences(preferences: UserPreferences, state: State<'_, AppState>) -> Result<(), String> {
+    state.store.lock().unwrap().save_preferences(preferences)
+}
+
+#[tauri::command]
+fn list_backups(state: State<'_, AppState>) -> Vec<BackupRecord> {
+    state.store.lock().unwrap().list_backups()
+}
+
+#[tauri::command]
+fn create_backup(state: State<'_, AppState>) -> Result<BackupRecord, String> {
+    state.store.lock().unwrap().create_backup()
+}
+
+#[tauri::command]
+fn restore_backup(filename: String, state: State<'_, AppState>) -> Result<(), String> {
+    state.store.lock().unwrap().restore_backup(&filename)
+}
+
+#[tauri::command]
+fn open_path(path: String, state: State<'_, AppState>) -> Result<(), String> {
+    state.store.lock().unwrap().open_path(&path)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let store = ManagerStore::new();
@@ -131,6 +166,13 @@ pub fn run() {
             get_presets,
             save_preset,
             get_history,
+            clear_history,
+            get_preferences,
+            save_preferences,
+            list_backups,
+            create_backup,
+            restore_backup,
+            open_path,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

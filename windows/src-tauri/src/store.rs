@@ -1,6 +1,6 @@
 use std::fs;
 use std::path::{Path, PathBuf};
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use serde_json::Value;
 use crate::models::*;
 use crate::paths::*;
@@ -22,12 +22,15 @@ impl ManagerStore {
         let _ = fs::create_dir_all(self.mcp_root());
         let _ = fs::create_dir_all(self.disabled_root());
         let _ = fs::create_dir_all(self.history_root());
+        let _ = fs::create_dir_all(self.backups_root());
     }
 
     pub fn skills_root(&self) -> PathBuf { self.base.join("skills") }
     pub fn mcp_root(&self) -> PathBuf { self.base.join("mcp") }
     pub fn disabled_root(&self) -> PathBuf { self.base.join("disabled") }
     pub fn history_root(&self) -> PathBuf { self.base.join("history") }
+    pub fn backups_root(&self) -> PathBuf { self.base.join("backups") }
+    pub fn preferences_file(&self) -> PathBuf { self.base.join("preferences.json") }
     pub fn projects_file(&self) -> PathBuf { self.base.join("projects.json") }
     pub fn deployments_file(&self) -> PathBuf { self.base.join("deployments.json") }
     pub fn disabled_file(&self) -> PathBuf { self.base.join("disabled.json") }
@@ -550,5 +553,162 @@ impl ManagerStore {
         if let Ok(data) = serde_json::to_string_pretty(&list) {
             let _ = fs::write(self.history_file(), data);
         }
+    }
+
+    // --- Preferences ---
+    pub fn get_preferences(&self) -> UserPreferences {
+        if let Ok(data) = fs::read_to_string(self.preferences_file()) {
+            serde_json::from_str(&data).unwrap_or_default()
+        } else {
+            UserPreferences::default()
+        }
+    }
+
+    pub fn save_preferences(&self, prefs: UserPreferences) -> Result<(), String> {
+        let data = serde_json::to_string_pretty(&prefs).map_err(|e| e.to_string())?;
+        fs::write(self.preferences_file(), data).map_err(|e| e.to_string())?;
+        Ok(())
+    }
+
+    // --- Backups ---
+    pub fn list_backups(&self) -> Vec<BackupRecord> {
+        let mut list = Vec::new();
+        if let Ok(entries) = fs::read_dir(self.backups_root()) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.extension().map_or(false, |ext| ext == "json") {
+                    let filename = path.file_name().unwrap_or_default().to_string_lossy().to_string();
+                    let metadata = fs::metadata(&path).ok();
+                    let size = metadata.as_ref().map(|m| m.len()).unwrap_or(0);
+                    let created = metadata.and_then(|m| m.created().ok()).map(DateTime::<Utc>::from).unwrap_or_else(Utc::now);
+
+                    let (skills, mcps) = if let Ok(content) = fs::read_to_string(&path) {
+                        if let Ok(v) = serde_json::from_str::<Value>(&content) {
+                            let s = v.get("skills").and_then(|a| a.as_array()).map(|a| a.len()).unwrap_or(0);
+                            let m = v.get("mcps").and_then(|a| a.as_array()).map(|a| a.len()).unwrap_or(0);
+                            (s, m)
+                        } else {
+                            (0, 0)
+                        }
+                    } else {
+                        (0, 0)
+                    };
+
+                    list.push(BackupRecord {
+                        id: filename.clone(),
+                        created_at: created,
+                        filename,
+                        size_bytes: size,
+                        skill_count: skills,
+                        mcp_count: mcps,
+                    });
+                }
+            }
+        }
+        list.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+        list
+    }
+
+    pub fn create_backup(&self) -> Result<BackupRecord, String> {
+        let timestamp = Utc::now().format("%Y%m%d_%H%M%S").to_string();
+        let filename = format!("backup_{}.json", timestamp);
+        let path = self.backups_root().join(&filename);
+
+        let skills = self.list_library_skills();
+        let mcps = self.list_library_mcps();
+        let presets = self.get_presets();
+        let projects = self.get_projects();
+
+        let snapshot = serde_json::json!({
+            "timestamp": Utc::now(),
+            "skills": skills,
+            "mcps": mcps,
+            "presets": presets,
+            "projects": projects,
+        });
+
+        let data = serde_json::to_string_pretty(&snapshot).map_err(|e| e.to_string())?;
+        fs::write(&path, &data).map_err(|e| e.to_string())?;
+
+        self.record_history("创建配置备份", "backup", &filename, None);
+
+        Ok(BackupRecord {
+            id: filename.clone(),
+            created_at: Utc::now(),
+            filename,
+            size_bytes: data.len() as u64,
+            skill_count: skills.len(),
+            mcp_count: mcps.len(),
+        })
+    }
+
+    pub fn restore_backup(&self, filename: &str) -> Result<(), String> {
+        let path = self.backups_root().join(filename);
+        if !path.exists() {
+            return Err("备份文件不存在".to_string());
+        }
+        let content = fs::read_to_string(&path).map_err(|e| e.to_string())?;
+        let v: Value = serde_json::from_str(&content).map_err(|e| e.to_string())?;
+
+        // Restore presets
+        if let Some(presets_val) = v.get("presets") {
+            if let Ok(presets) = serde_json::from_value::<Vec<Preset>>(presets_val.clone()) {
+                let p_data = serde_json::to_string_pretty(&presets).map_err(|e| e.to_string())?;
+                let _ = fs::write(self.presets_file(), p_data);
+            }
+        }
+
+        // Restore projects
+        if let Some(proj_val) = v.get("projects") {
+            if let Ok(projects) = serde_json::from_value::<Vec<String>>(proj_val.clone()) {
+                let p_data = serde_json::to_string_pretty(&projects).map_err(|e| e.to_string())?;
+                let _ = fs::write(self.projects_file(), p_data);
+            }
+        }
+
+        // Restore MCPs
+        if let Some(mcps_arr) = v.get("mcps").and_then(|a| a.as_array()) {
+            for mcp_val in mcps_arr {
+                if let (Some(name), Some(def)) = (mcp_val.get("name").and_then(|s| s.as_str()), mcp_val.get("definition")) {
+                    let _ = self.save_mcp(name, def.clone());
+                }
+            }
+        }
+
+        self.record_history("恢复配置备份", "backup", filename, None);
+        Ok(())
+    }
+
+    pub fn clear_history(&self) -> Result<(), String> {
+        let empty: Vec<HistoryRecord> = Vec::new();
+        let data = serde_json::to_string_pretty(&empty).map_err(|e| e.to_string())?;
+        fs::write(self.history_file(), data).map_err(|e| e.to_string())?;
+        Ok(())
+    }
+
+    pub fn open_path(&self, path_str: &str) -> Result<(), String> {
+        let target = if path_str.is_empty() || path_str == "base" {
+            self.base.clone()
+        } else if path_str == "skills" {
+            self.skills_root()
+        } else if path_str == "mcp" {
+            self.mcp_root()
+        } else {
+            PathBuf::from(path_str)
+        };
+
+        #[cfg(target_os = "windows")]
+        {
+            let _ = std::process::Command::new("explorer")
+                .arg(&target)
+                .spawn();
+        }
+        #[cfg(not(target_os = "windows"))]
+        {
+            let _ = std::process::Command::new("open")
+                .arg(&target)
+                .spawn();
+        }
+        Ok(())
     }
 }

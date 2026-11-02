@@ -1,4 +1,4 @@
-export type AgentId = "claude" | "cursor" | "codex" | "antigravity" | "qoder" | "workbuddy";
+export type AgentId = "claude" | "cursor" | "codex" | "antigravity" | "qoder" | "workbuddy" | "Claude Code" | "Cursor" | "Codex" | "Antigravity" | "Qoder" | "WorkBuddy";
 
 export interface AgentStatus {
   agent: AgentId;
@@ -77,4 +77,22 @@ export interface DisplayItem {
   rawSkill?: SkillItem;
   rawMcp?: McpItem;
   externalPaths: string[];
+}
+
+export interface UserPreferences {
+  detail_presentation_mode: "modal" | "sidebar";
+  default_markdown_mode: "preview" | "source";
+  skill_deployment_mode: "link" | "copy";
+  default_git_branch: string;
+  enable_shallow_clone: boolean;
+  history_limit: number;
+}
+
+export interface BackupRecord {
+  id: string;
+  created_at: string;
+  filename: string;
+  size_bytes: number;
+  skill_count: number;
+  mcp_count: number;
 }
