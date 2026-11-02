@@ -1,8 +1,49 @@
 @import "tailwindcss";
 
 @layer base {
-  body {
-    @apply bg-neutral-950 text-neutral-100 select-none antialiased;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  :root {
+    --canvas-bg: #f4f6f9;
+    --sidebar-bg: #ecedf0;
+    --card-bg: #ffffff;
+    --inset-bg: #f8fafd;
+    --border-line: #e2e7ed;
+    --primary-text: #0f172a;
+    --secondary-text: #64748b;
+    --active-pill-bg: #e0eeff;
+    --active-pill-text: #0266ee;
+    --electric-blue: #2563eb;
+    --mint: #10b981;
+    --amber: #f59e0b;
   }
+
+  body {
+    background-color: var(--canvas-bg);
+    color: var(--primary-text);
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-font-smoothing: antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.6);
 }

@@ -63,6 +63,31 @@ fn delete_mcp(name: String, state: State<'_, AppState>) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn deploy_skill(name: String, agent: Agent, project: Option<String>, state: State<'_, AppState>) -> Result<(), String> {
+    state.store.lock().unwrap().deploy_skill(&name, agent, project)
+}
+
+#[tauri::command]
+fn remove_skill(name: String, agent: Agent, project: Option<String>, state: State<'_, AppState>) -> Result<(), String> {
+    state.store.lock().unwrap().remove_skill(&name, agent, project)
+}
+
+#[tauri::command]
+fn adopt_skill(name: String, src_path: String, state: State<'_, AppState>) -> Result<(), String> {
+    state.store.lock().unwrap().adopt_skill(&name, &src_path)
+}
+
+#[tauri::command]
+fn deploy_mcp(name: String, agent: Agent, project: Option<String>, state: State<'_, AppState>) -> Result<(), String> {
+    state.store.lock().unwrap().deploy_mcp(&name, agent, project)
+}
+
+#[tauri::command]
+fn remove_mcp(name: String, agent: Agent, project: Option<String>, state: State<'_, AppState>) -> Result<(), String> {
+    state.store.lock().unwrap().remove_mcp(&name, agent, project)
+}
+
+#[tauri::command]
 fn get_presets(state: State<'_, AppState>) -> Vec<Preset> {
     state.store.lock().unwrap().get_presets()
 }
@@ -98,6 +123,11 @@ pub fn run() {
             list_installed_mcps,
             save_mcp,
             delete_mcp,
+            deploy_skill,
+            remove_skill,
+            adopt_skill,
+            deploy_mcp,
+            remove_mcp,
             get_presets,
             save_preset,
             get_history,

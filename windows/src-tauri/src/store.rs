@@ -342,6 +342,169 @@ impl ManagerStore {
         Ok(())
     }
 
+    pub fn deploy_skill(&self, name: &str, agent: Agent, project: Option<String>) -> Result<(), String> {
+        let src = self.skills_root().join(name);
+        if !src.exists() {
+            return Err(format!("技能 {} 不存在于中央库", name));
+        }
+        let roots = match &project {
+            Some(proj) => get_project_skill_roots(agent, Path::new(proj)),
+            None => get_global_skill_roots(agent),
+        };
+        if roots.is_empty() {
+            return Err("未找到客户端技能根目录".to_string());
+        }
+        let target_dir = &roots[0];
+        let dst = target_dir.join(name);
+        if dst.exists() {
+            return Err("目标客户端已存在同名配置".to_string());
+        }
+        if let Some(parent) = dst.parent() {
+            let _ = fs::create_dir_all(parent);
+        }
+        link_or_copy_dir(&src, &dst, true).map_err(|e| format!("分发失败: {}", e))?;
+        self.record_history("分发技能", "skill", name, Some(&format!("至 {}", agent.name())));
+        Ok(())
+    }
+
+    pub fn remove_skill(&self, name: &str, agent: Agent, project: Option<String>) -> Result<(), String> {
+        let roots = match &project {
+            Some(proj) => get_project_skill_roots(agent, Path::new(proj)),
+            None => get_global_skill_roots(agent),
+        };
+        for root in roots {
+            let dst = root.join(name);
+            if dst.exists() {
+                let _ = fs::remove_dir_all(&dst);
+            }
+        }
+        self.record_history("停用技能", "skill", name, Some(&format!("从 {}", agent.name())));
+        Ok(())
+    }
+
+    pub fn adopt_skill(&self, name: &str, src_path: &str) -> Result<(), String> {
+        let src = Path::new(src_path);
+        if !src.exists() {
+            return Err("来源路径不存在".to_string());
+        }
+        let dst = self.skills_root().join(name);
+        if dst.exists() {
+            return Err("中央库中已存在同名技能".to_string());
+        }
+        copy_dir_recursive(src, &dst).map_err(|e| format!("入库失败: {}", e))?;
+        self.record_history("入库技能", "skill", name, Some(src_path));
+        Ok(())
+    }
+
+    pub fn deploy_mcp(&self, name: &str, agent: Agent, project: Option<String>) -> Result<(), String> {
+        let mcp_file = self.mcp_root().join(format!("{}.json", name));
+        if !mcp_file.exists() {
+            return Err(format!("MCP {} 不存在于中央库", name));
+        }
+        let def_str = fs::read_to_string(&mcp_file).map_err(|e| e.to_string())?;
+        let def: Value = serde_json::from_str(&def_str).map_err(|e| e.to_string())?;
+
+        let (cfg_path, format) = match &project {
+            Some(proj) => get_project_mcp_config(agent, Path::new(proj)),
+            None => get_global_mcp_config(agent),
+        };
+
+        if let Some(parent) = cfg_path.parent() {
+            let _ = fs::create_dir_all(parent);
+        }
+
+        match format {
+            ConfigFormat::Json => {
+                let mut root: Value = if cfg_path.exists() {
+                    let content = fs::read_to_string(&cfg_path).unwrap_or_else(|_| "{}".to_string());
+                    serde_json::from_str(&content).unwrap_or_else(|_| serde_json::json!({}))
+                } else {
+                    serde_json::json!({})
+                };
+
+                let servers_key = if root.get("servers").is_some() {
+                    "servers"
+                } else {
+                    "mcpServers"
+                };
+
+                if root.get(servers_key).is_none() {
+                    root[servers_key] = serde_json::json!({});
+                }
+
+                if let Some(obj) = root.get_mut(servers_key).and_then(|v| v.as_object_mut()) {
+                    obj.insert(name.to_string(), def);
+                }
+
+                let new_content = serde_json::to_string_pretty(&root).map_err(|e| e.to_string())?;
+                fs::write(&cfg_path, new_content).map_err(|e| e.to_string())?;
+            }
+            ConfigFormat::Toml => {
+                let mut root: toml::Value = if cfg_path.exists() {
+                    let content = fs::read_to_string(&cfg_path).unwrap_or_else(|_| "".to_string());
+                    toml::from_str(&content).unwrap_or_else(|_| toml::Value::Table(toml::map::Map::new()))
+                } else {
+                    toml::Value::Table(toml::map::Map::new())
+                };
+
+                if let toml::Value::Table(ref mut map) = root {
+                    let servers_entry = map.entry("mcp_servers".to_string()).or_insert_with(|| toml::Value::Table(toml::map::Map::new()));
+                    if let toml::Value::Table(s_map) = servers_entry {
+                        let toml_def: toml::Value = serde_json::from_value(def).map_err(|e| e.to_string())?;
+                        s_map.insert(name.to_string(), toml_def);
+                    }
+                }
+                let new_content = toml::to_string_pretty(&root).map_err(|e| e.to_string())?;
+                fs::write(&cfg_path, new_content).map_err(|e| e.to_string())?;
+            }
+        }
+        self.record_history("分发 MCP", "mcp", name, Some(&format!("至 {}", agent.name())));
+        Ok(())
+    }
+
+    pub fn remove_mcp(&self, name: &str, agent: Agent, project: Option<String>) -> Result<(), String> {
+        let (cfg_path, format) = match &project {
+            Some(proj) => get_project_mcp_config(agent, Path::new(proj)),
+            None => get_global_mcp_config(agent),
+        };
+        if !cfg_path.exists() {
+            return Ok(());
+        }
+
+        match format {
+            ConfigFormat::Json => {
+                if let Ok(content) = fs::read_to_string(&cfg_path) {
+                    if let Ok(mut root) = serde_json::from_str::<Value>(&content) {
+                        for k in ["mcpServers", "servers"] {
+                            if let Some(obj) = root.get_mut(k).and_then(|v| v.as_object_mut()) {
+                                obj.remove(name);
+                            }
+                        }
+                        if let Ok(new_content) = serde_json::to_string_pretty(&root) {
+                            let _ = fs::write(&cfg_path, new_content);
+                        }
+                    }
+                }
+            }
+            ConfigFormat::Toml => {
+                if let Ok(content) = fs::read_to_string(&cfg_path) {
+                    if let Ok(mut root) = toml::from_str::<toml::Value>(&content) {
+                        if let toml::Value::Table(ref mut map) = root {
+                            if let Some(toml::Value::Table(s_map)) = map.get_mut("mcp_servers") {
+                                s_map.remove(name);
+                            }
+                        }
+                        if let Ok(new_content) = toml::to_string_pretty(&root) {
+                            let _ = fs::write(&cfg_path, new_content);
+                        }
+                    }
+                }
+            }
+        }
+        self.record_history("移除 MCP", "mcp", name, Some(&format!("从 {}", agent.name())));
+        Ok(())
+    }
+
     // --- Presets ---
     pub fn get_presets(&self) -> Vec<Preset> {
         if let Ok(data) = fs::read_to_string(self.presets_file()) {
