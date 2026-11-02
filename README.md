@@ -1,57 +1,134 @@
-# Looma
+<p align="center">
+  <img src="Resources/AppIcon/AppIcon.png" width="128" height="128" alt="Looma Logo" style="border-radius: 28px; box-shadow: 0 12px 24px rgba(0,0,0,0.15);" />
+</p>
 
-用于统一查看和管理本机 AI 客户端的 Skill 与 MCP 配置的 macOS 应用。
+<h1 align="center">Looma</h1>
 
-## 当前功能
+<p align="center">
+  <strong>现代化、跨平台的本机 AI 客户端 Skill 与 MCP 配置统一管理中心</strong>
+</p>
 
-- 扫描 Claude Code、Codex、Cursor、Antigravity、Qoder、WorkBuddy 的用户级 Skill/MCP；添加项目后扫描项目级目录。
-- 从本地文件夹导入 Skill；在设置中统一选择新部署使用软链接或复制（默认软链接），并可撤销本应用创建的分发。
-- 从 Git 仓库导入 Skill，记住最近 20 条仓库/分支/子目录记录，并自动填入最近使用的仓库。
-- Git 检索结果显示已归档、同名待替换和失效链接待修复状态；重复归档保留自定义名称。批量逐项执行，失败不阻断后续项，并汇总结果供重试。
-- 从已有配置导入 MCP Server，或新建 JSON 模板；将条目写入目标 JSON/TOML 配置；可撤销本应用创建的条目。
-- MCP 会标记为系统服务、用户配置、Looma 分发或中央库；客户端应用包内的系统服务默认只读，不参与预设替换。用户配置支持暂存、停用、恢复和删除，删除操作可从操作记录回滚。
-- 将中央库 Skill 与 MCP 保存为可复用的预设组合；选择全局或项目作用域及一个或多个已安装客户端后预览替换计划。未检测到应用或命令的客户端不能应用预设；已有配置目录不代表客户端已安装。应用预设会停用预设外的现有能力，将同名外部配置暂存后部署中央库版本；原有配置可从操作记录回滚或在停用预设项后恢复。批量停用仅处理预设中由本应用分发的条目，不会自动恢复先前暂存的配置。预设本身只保存条目名称。
-- MCP 名称可包含中文、空格和括号；写入 Claude Code 时名称原样保留，但 Claude 会把字母、数字、`_`、`-` 以外的字符替换为 `_` 来生成工具名，因此替换后相同的两个 MCP 不能同时启用，单项启用和预设预览都会提示冲突。
-- 停用和恢复原来就存在的 Skill/MCP。已有 Skill 移到应用的暂存目录；已有 MCP 条目存到本地暂存文件。
-- 改动前显示目标位置；配置文件写入前保存备份，可在设置页恢复；同名条目不覆盖。
-- Skill、MCP 与项目配置变更写入本机操作记录；设置页可回滚未被外部修改的操作，并选择保留最近 20、50 或 100 条（默认 50）。
-- 左侧的客户端列表仅显示已检测到安装的应用；能力卡片和详情中的部署目标也仅列出已安装客户端。未入库的条目可从卡片加入中央库。
-- 从已发现配置入库时先预览来源；同名条目列出客户端、路径和内容是否一致，批量入库可逐项选择并查看失败原因。
-- 能力卡片的客户端图标可直接启用、停用或恢复，悬停提示会说明当前状态与点击动作；“可启用”筛选以当前操作目标能否启用为准。
-- 预设执行结果列出已完成、未执行与失败条目；可尝试按操作记录逆序恢复本次变更。目标文件若随后被外部修改，恢复会停止并报告失败项。
-- 中央库条目可通过列表“更多”、详情页或右键菜单移至废纸篓；仍有本应用启用位置时需先停用。
-- 优先显示已安装客户端的应用图标；未安装时使用随包图标。
-- 设置的“客户端与关于”页列出所有受支持客户端的安装状态、全局与项目级 Skill 目录及 MCP 配置文件路径。
+<p align="center">
+  <a href="https://github.com/Whisky-s/Looma/releases/latest">
+    <img src="https://img.shields.io/github/v/release/Whisky-s/Looma?label=Release&color=orange" alt="Latest Release" />
+  </a>
+  <img src="https://img.shields.io/badge/Platform-macOS%20%7C%20Windows-blue" alt="Platform" />
+  <img src="https://img.shields.io/badge/macOS-Swift%20%2B%20SwiftUI-red" alt="macOS Swift" />
+  <img src="https://img.shields.io/badge/Windows-Tauri%202.0%20%2B%20Rust-brightgreen" alt="Windows Tauri" />
+  <img src="https://img.shields.io/badge/License-MIT-purple" alt="License" />
+</p>
 
-应用只管理文件系统中的 Skill 目录和客户端配置文件；修改后可能需要重启或刷新对应客户端。
+<p align="center">
+  <img src="promo/captures/current-app.png" width="85%" alt="Looma Preview" style="border-radius: 12px; box-shadow: 0 16px 32px rgba(0,0,0,0.25);" />
+</p>
 
-关闭主窗口后，应用仍驻留在 macOS 状态栏，Dock 图标会隐藏。可从状态栏菜单重新打开主界面，或选择“退出 Looma”彻底退出。主窗口打开时，Dock 图标会重新显示。
+---
 
-## 构建与运行
+## 📖 简介
 
-需要 macOS 14+ 和 Xcode。
+**Looma** 是一款专注于本地 AI 编程助手配置管理的桌面应用。通过建立集中的“中央能力库”，帮助开发者轻松管理、同步和复用多个 AI 客户端的 **Skill 技能包** 与 **MCP (Model Context Protocol)** 配置文件。
+
+已全面支持主流 AI 客户端：
+- **Claude Code** (CLI)
+- **Codex** (CLI / VS Code)
+- **Cursor**
+- **Antigravity** (Google)
+- **Qoder**
+- **WorkBuddy**
+
+---
+
+## ✨ 核心特性
+
+* 🎯 **全客户端自动发现**：自动扫描本机支持的 AI 客户端，检测全局用户配置与指定项目级工作区的配置目录。
+* 📦 **Skill 中央库与一键分发**：
+  * 支持从本地目录或 Git 远程仓库一键导入技能包，保留版本与更新历史。
+  * 分发时支持 **符号链接 / NTFS Junction 目录联接** 或 **独立拷贝模式**，支持随时一键撤销部署。
+* 🔌 **MCP Server 可视化配置中心**：
+  * 支持 JSON / TOML 跨格式解析与导入，提供可视化的参数、命令与环境变量编辑。
+  * 智能识别客户端内置系统服务，提供同名覆盖拦截与命名冲突预警。
+* 🎛️ **预设组合（Presets）**：
+  * 将中央库的 Skill 与 MCP 组合为不同场景的预设方案（如：前端开发、数据分析、运维巡检）。
+  * 一键预览配置替换计划，支持多客户端同时应用或安全撤销。
+* ⏪ **原子级快照与安全回滚**：
+  * 所有配置文件写入前自动生成本地快照备份。
+  * 完整记录本机操作流水，支持一键撤销并按时间逆序安全回滚历史变更。
+* 🔒 **100% 隐私安全**：
+  * 所有配置、本地模型参数与 MCP 凭据**仅保存在本机**，绝不进行任何云端数据上传。
+
+---
+
+## 🏗️ 双架构体系设计 (Dual Architecture)
+
+本项目采用针对操作系统深度优化的双架构模式：
+
+| 平台 | 技术栈 | 核心优势 | 对应源码目录 |
+| :--- | :--- | :--- | :--- |
+| **macOS** | **Swift + SwiftUI + AppKit** | 纯原生极致性能、macOS 毛玻璃质感、系统状态栏菜单常驻、Apple Silicon 原生优化 | 根目录 (`Sources/`, `Package.swift`) |
+| **Windows** | **Tauri 2.0 + Rust + React 19** | 内存占用低（~20MB）、原生 NTFS Junction 目录联接适配、注册表智能扫描、Tailwind 视觉复刻 | [`windows/`](windows/) 目录 |
+
+---
+
+## 📥 下载安装
+
+请前往 [GitHub Releases](https://github.com/Whisky-s/Looma/releases/latest) 下载对应平台的安装包：
+
+* **macOS 用户**：下载 `Looma-macOS-Universal-*.dmg`（通用架构，原生支持 Apple Silicon M系列 与 Intel 处理器）。
+* **Windows 用户**：下载 `Looma_*_x64-setup.exe`（安装向导）或 `.msi` 独立安装包。
+
+---
+
+## 🛠️ 本地开发与构建
+
+### 1. macOS 原生版本构建
+
+**前置要求**：macOS 14+ 及 Xcode 15+。
 
 ```bash
+# 运行自动化回归与核心逻辑测试
+zsh scripts/smoke.sh
+
+# 编译并在本地生成未签名的应用包
 zsh scripts/build-app.sh
 open "dist/Looma.app"
-```
 
-构建脚本生成本机可运行的未签名应用包。运行核心文件操作检查：
-
-```bash
-zsh scripts/smoke.sh
-```
-
-## 本地数据
-
-中央库、预设组合、项目列表、分发记录、停用暂存、备份和回滚快照位于 `~/Library/Application Support/AgentManager/`。MCP 模板和回滚快照可能包含从原配置导入的环境变量值，**仅保存在本机**；敏感文件权限限定为当前用户可读写。不要把这个目录直接同步到公共仓库。
-
-## 分发安装包
-
-```bash
+# 打包双架构 Universal DMG 安装镜像
 zsh scripts/package-app.sh
 ```
 
-生成支持 Apple Silicon 与 Intel 的通用 DMG，包含 Looma.app、Applications 快捷入口和安装说明。仅打包应用资源，不包含本机用户数据。当前使用临时签名，未完成 Developer ID 签名及 Apple 公证，接收者首次打开可能需要在系统设置中确认。
+### 2. Windows 版本 (Tauri) 开发
 
-产品名称已更名为 Looma；为兼容原有数据，Bundle Identifier 和数据目录仍沿用旧标识。
+**前置要求**：Node.js 20+、Rust 1.80+。
+
+```bash
+cd windows
+
+# 安装前端依赖
+npm install
+
+# 启动本地热重载调试（可在 Mac/Windows 上直接调起原生调试窗口）
+npm run tauri dev
+
+# 仅调试前端 Web 界面
+npm run dev
+
+# 生产环境编译（或通过 GitHub Actions 自动打包）
+npm run tauri build
+```
+
+---
+
+## 💾 本地数据目录说明
+
+应用产生的中央库、预设组合、项目列表与备份快照存放在本机用户目录中：
+* **macOS**：`~/Library/Application Support/AgentManager/`
+* **Windows**：`%APPDATA%\AgentManager\`
+
+> [!NOTE]
+> 包含 API Key 或敏感环境变量的 MCP 模板和快照文件均设置了仅限当前操作系统用户读写的权限，请勿将上述本地数据目录直接同步到公开仓库。
+
+---
+
+## 📄 开源许可证
+
+本项目基于 [MIT License](LICENSE) 开源。
