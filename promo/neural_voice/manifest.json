@@ -1,0 +1,58 @@
+[
+  {
+    "scene": 1,
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "text": "Agent Manager，把分散的 AI 能力，收进一处。",
+    "start": 0.55,
+    "duration": 4.362291666666667,
+    "rate": -4
+  },
+  {
+    "scene": 2,
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "text": "多个 AI 客户端，启用了什么，一眼就能看清。",
+    "start": 6.05,
+    "duration": 4.473,
+    "rate": -4
+  },
+  {
+    "scene": 3,
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "text": "MCP 服务集中收纳，来源和状态，一目了然。",
+    "start": 11.55,
+    "duration": 4.6224791666666665,
+    "rate": -4
+  },
+  {
+    "scene": 4,
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "text": "把常用技能和服务存成组合，下次直接复用。",
+    "start": 17.05,
+    "duration": 4.428729166666667,
+    "rate": -4
+  },
+  {
+    "scene": 5,
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "text": "应用前先预览变更，确认后，再执行。",
+    "start": 22.55,
+    "duration": 3.9663125,
+    "rate": -4
+  },
+  {
+    "scene": 6,
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "text": "每次操作都有记录，配置变更，可以追溯。",
+    "start": 28.05,
+    "duration": 4.105333333333333,
+    "rate": -4
+  },
+  {
+    "scene": 7,
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "text": "Agent Manager，让本机 AI 能力管理，更简单。",
+    "start": 33.54997916666667,
+    "duration": 4.585958333333333,
+    "rate": -4
+  }
+]

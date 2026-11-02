@@ -1,0 +1,28 @@
+# Swift / macOS
+.build/
+.swiftpm/
+dist/
+*.xcodeproj/
+*.xcworkspace/
+.DS_Store
+
+# Tauri / Web / Rust (for Windows architecture)
+node_modules/
+windows/node_modules/
+windows/dist/
+windows/build/
+windows/src-tauri/target/
+target/
+src-tauri/target/
+
+# Python / Temp
+__pycache__/
+*.pyc
+*.log
+promo/.tts-deps/
+
+# System & IDEs
+*.swp
+*~
+.idea/
+.vscode/
