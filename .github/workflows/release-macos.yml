@@ -29,9 +29,6 @@ jobs:
       - name: Run Smoke Tests
         run: zsh scripts/smoke.sh
 
-      - name: Package Universal DMG
-        run: zsh scripts/package-app.sh
-
       - name: Determine Release Tag
         id: vars
         run: |
@@ -41,6 +38,9 @@ jobs:
             TAG="${GITHUB_REF#refs/tags/}"
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Package Universal DMG
+        run: zsh scripts/package-app.sh "${{ steps.vars.outputs.tag }}"
 
       - name: Create or Update Release
         uses: softprops/action-gh-release@v2
