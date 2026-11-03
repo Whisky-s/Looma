@@ -1,6 +1,6 @@
 [package]
 name = "looma"
-version = "0.1.5"
+version = "0.1.6"
 description = "Looma - AI Skill & MCP Manager for Windows"
 authors = ["Whisky-s"]
 edition = "2024"

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { AgentStatus } from "../types";
 import { AgentIcon } from "./AgentIcon";
+import { handleWindowDrag, handleWindowDoubleClick } from "../lib/windowDrag";
 
 interface SidebarProps {
   page: "skills" | "mcp" | "presets" | "projects" | "settings";
@@ -74,19 +75,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className="w-[240px] h-full bg-[#ecedf0] border-r border-[#e2e7ed] flex flex-col justify-between shrink-0 select-none">
       <div className="flex flex-col h-full overflow-hidden">
         {/* App Header */}
-        <div className="pt-3.5 pb-3.5 px-4 flex items-center justify-between border-b border-[#e2e7ed]/60">
-          <div className="flex items-center gap-3">
+        <div
+          data-tauri-drag-region
+          onMouseDown={handleWindowDrag}
+          onDoubleClick={handleWindowDoubleClick}
+          className="pt-4 pb-3.5 px-4 flex items-center justify-between border-b border-[#e2e7ed]/60 select-none cursor-default"
+        >
+          <div className="flex items-center gap-3" data-tauri-drag-region>
             <img
               src="/app-icon.png"
               alt="Looma"
-              className="w-9 h-9 rounded-xl shadow-xs object-cover border border-slate-200"
+              className="w-9 h-9 rounded-xl shadow-xs object-cover border border-slate-200 pointer-events-none"
             />
-            <div className="leading-tight">
+            <div className="leading-tight" data-tauri-drag-region>
               <div className="text-[14px] font-bold text-[#0f172a]">Looma</div>
               <div className="text-[11px] font-medium text-[#64748b]">AI 能力控制台</div>
             </div>
           </div>
           <button
+            data-no-drag
             onClick={onRefresh}
             title="重新扫描并刷新"
             className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 transition cursor-pointer"

@@ -1,6 +1,7 @@
 import React from "react";
 import { HelpCircle } from "lucide-react";
 import { AgentStatus } from "../types";
+import { handleWindowDrag, handleWindowDoubleClick } from "../lib/windowDrag";
 
 interface HeaderProps {
   page: "skills" | "mcp" | "presets" | "projects" | "settings";
@@ -58,11 +59,16 @@ export const Header: React.FC<HeaderProps> = ({
   const targetLabel = projectName ? `项目 · ${projectName}` : "全局";
 
   return (
-    <div className="flex items-center justify-between px-8 pt-4 pb-3.5 shrink-0">
-      <div>
+    <div
+      data-tauri-drag-region
+      onMouseDown={handleWindowDrag}
+      onDoubleClick={handleWindowDoubleClick}
+      className="flex items-center justify-between px-8 pt-5 pb-3.5 shrink-0 select-none cursor-default"
+    >
+      <div data-tauri-drag-region>
         <div className="flex items-center gap-2.5">
           <h1 className="text-2xl font-bold tracking-tight text-[#0f172a]">{getTitle()}</h1>
-          <span title={getSubtitle()} className="cursor-help">
+          <span title={getSubtitle()} className="cursor-help" data-no-drag>
             <HelpCircle className="w-4 h-4 text-[#64748b] hover:text-[#0f172a] transition" />
           </span>
         </div>
@@ -75,11 +81,13 @@ export const Header: React.FC<HeaderProps> = ({
         )}
       </div>
 
-      {/* Looma badge */}
-      <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-full border border-[#e2e7ed] shadow-xs">
-        <span className="w-2 h-2 rounded-full bg-[#10b981]" />
-        <span className="text-xs font-bold text-[#0f172a]">Looma</span>
-        <span className="text-[11px] font-semibold font-mono text-[#2563eb]">v0.1.5</span>
+      {/* Right side: Looma badge */}
+      <div className="flex items-center gap-3 pr-24" data-no-drag>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-full border border-[#e2e7ed] shadow-xs">
+          <span className="w-2 h-2 rounded-full bg-[#10b981]" />
+          <span className="text-xs font-bold text-[#0f172a]">Looma</span>
+          <span className="text-[11px] font-semibold font-mono text-[#2563eb]">v0.1.6</span>
+        </div>
       </div>
     </div>
   );

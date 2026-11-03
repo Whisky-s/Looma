@@ -677,7 +677,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="text-lg font-bold text-[#0f172a]">Looma</h2>
-                    <Badge variant="blue" className="text-[11px]">v0.1.5 Windows Edition</Badge>
+                    <Badge variant="blue" className="text-[11px]">v0.1.6 Windows Edition</Badge>
                   </div>
                   <p className="text-xs text-slate-500 mt-1">
                     全 Agent 生态生产力技能与 MCP 工具统一管理平台 · 高效分发与版本同步

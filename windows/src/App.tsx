@@ -20,7 +20,7 @@ import { SettingsView } from "./components/SettingsView";
 import { DetailModal } from "./components/DetailModal";
 import { NewMcpModal } from "./components/NewMcpModal";
 import { ImportModal } from "./components/ImportModal";
-import { TitleBar } from "./components/TitleBar";
+import { WindowControls } from "./components/WindowControls";
 
 const DEFAULT_AGENTS: AgentStatus[] = [
   { agent: "claude", name: "Claude", installed: true, global_skill_roots: [], global_mcp_path: "~/.claude.json" },
@@ -430,13 +430,12 @@ export default function App() {
   const unadoptedMcpCount = consolidatedMcps.filter((m) => !m.isLibrary).length;
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#f4f6f9] text-[#0f172a] select-none overflow-hidden font-sans border border-slate-300/70 rounded-xl shadow-lg">
-      {/* Sleek Custom Frameless TitleBar */}
-      <TitleBar />
+    <div className="flex h-screen w-screen bg-[#f4f6f9] text-[#0f172a] select-none overflow-hidden font-sans relative">
+      {/* Top-Right Frameless Window Controls */}
+      <WindowControls />
 
-      <div className="flex flex-1 h-[calc(100vh-32px)] overflow-hidden">
-        {/* Left Sidebar */}
-        <Sidebar
+      {/* Left Sidebar */}
+      <Sidebar
           page={page}
           setPage={setPage}
           sourceFilter={sourceFilter}
@@ -549,7 +548,6 @@ export default function App() {
             />
           )}
         </main>
-      </div>
 
       {/* Modals */}
       <NewMcpModal

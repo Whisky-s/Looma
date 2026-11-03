@@ -47,3 +47,14 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 116, 139, 0.6);
 }
+
+/* Frameless Window Dragging */
+[data-tauri-drag-region] {
+  app-region: drag;
+  -webkit-app-region: drag;
+}
+
+button, input, textarea, select, a, [data-no-drag] {
+  app-region: no-drag;
+  -webkit-app-region: no-drag;
+}
